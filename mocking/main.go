@@ -3,13 +3,14 @@ package main
 import (
 	"fmt"
 	"io"
+	"iter"
 	"os"
 	"time"
 )
 
 const (
 	finalPhrase    = "Go!"
-	countdownStart = 3
+	countdownFrom = 3
 )
 
 func main() {
@@ -26,11 +27,21 @@ type Sleeper interface {
 }
 
 func Countdown(b io.Writer, s Sleeper) {
-	for i := countdownStart; i > 0; i-- {
+	for i := range countDownFrom(countdownFrom) {
 		fmt.Fprintln(b, i)
 		s.Sleep()
 	}
 	fmt.Fprintf(b, finalPhrase)
+}
+
+func countDownFrom(from int) iter.Seq[int] {
+	return func(yield func(int) bool) {
+		for i := from; i > 0; i-- {
+			if !yield(i) {
+				return
+			}
+		}
+	}
 }
 
 type ConfigurableSleeper struct {
