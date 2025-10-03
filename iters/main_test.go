@@ -40,15 +40,8 @@ func TestRange(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := []int{}
-			iter := Range(test.from, test.to)
-			for e := range iter {
-				got = append(got, e)
-			}
-
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("got %v, want %v", got, test.want)
-			}
+			got := collect(Range(test.from, test.to))
+			assertEqual(t, test.name, got, test.want)
 		})
 	}
 }
@@ -61,25 +54,25 @@ func TestFilter(t *testing.T) {
 		want      []int
 	}{
 		{
-			name:      "No positive predicate",
+			name:      "no positive predicate",
 			iter:      Range(1, 5),
 			predicate: func(i int) bool { return false },
 			want:      []int{},
 		},
 		{
-			name:      "All positive predicate",
+			name:      "all positive predicate",
 			iter:      Range(1, 5),
 			predicate: func(i int) bool { return true },
 			want:      []int{1, 2, 3, 4, 5},
 		},
 		{
-			name:      "Even numbers only",
+			name:      "even numbers only",
 			iter:      Range(1, 5),
 			predicate: func(i int) bool { return i%2 == 0 },
 			want:      []int{2, 4},
 		},
 		{
-			name:      "Empy input, empty output",
+			name:      "empy input, empty output",
 			iter:      Range(6, 5),
 			predicate: func(i int) bool { return i%2 == 0 },
 			want:      []int{},
@@ -88,13 +81,24 @@ func TestFilter(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := []int{}
-			for v := range Filter(test.iter, test.predicate) {
-				got = append(got, v)
-			}
-			if !reflect.DeepEqual(got, test.want) {
-				t.Errorf("got %v, want %v", got, test.want)
-			}
+			got := collect(Filter(test.iter, test.predicate))
+			assertEqual(t, test.name, got, test.want)
 		})
+	}
+}
+
+func collect[T any](iter iter.Seq[T]) []T {
+	got := []T{}
+	for v := range iter {
+		got = append(got, v)
+	}
+	return got
+}
+
+func assertEqual[T any](t *testing.T, test string, got, want []T) {
+	t.Helper()
+
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("for test: %s error, got %v, but want %v", test, got, want)
 	}
 }
