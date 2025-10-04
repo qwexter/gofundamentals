@@ -6,6 +6,28 @@ import (
 	"testing"
 )
 
+func TestIterAsSlice(t *testing.T) {
+	tests := []struct {
+		name  string
+		input []int
+	}{
+		{
+			name:  "when empty slice then empty iter",
+			input: []int{},
+		},
+		{
+			name:  "when non empty slice then same values as iter",
+			input: []int{1, 3, 2, 4},
+		},
+	}
+
+	for _, test := range tests {
+		iter := SliceAsIter(test.input)
+		got := iterAsSlice(iter)
+		assertEqual(t, test.name, got, test.input)
+	}
+}
+
 func TestRange(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -40,7 +62,7 @@ func TestRange(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := collect(Range(test.from, test.to))
+			got := iterAsSlice(Range(test.from, test.to))
 			assertEqual(t, test.name, got, test.want)
 		})
 	}
@@ -81,13 +103,13 @@ func TestFilter(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := collect(Filter(test.iter, test.predicate))
+			got := iterAsSlice(Filter(test.iter, test.predicate))
 			assertEqual(t, test.name, got, test.want)
 		})
 	}
 }
 
-func collect[T any](iter iter.Seq[T]) []T {
+func iterAsSlice[T any](iter iter.Seq[T]) []T {
 	got := []T{}
 	for v := range iter {
 		got = append(got, v)
