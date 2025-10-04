@@ -186,6 +186,29 @@ func TestTake(t *testing.T) {
 	}
 }
 
+func TestCycle(t *testing.T) {
+	tests := []struct {
+		name  string
+		input []int
+		take  int
+		want  []int
+	}{
+		{
+			name:  "empty input, empty output",
+			input: []int{},
+			take:  10,
+			want:  []int{},
+		},
+	}
+
+	for _, test := range tests {
+		iter := Cycle(test.input)
+		wrap := Take(iter, test.take)
+		got := iterAsSlice(wrap)
+		assertEqual(t, test.name, got, test.want)
+	}
+}
+
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
 	got := []T{}
 	for v := range iter {
