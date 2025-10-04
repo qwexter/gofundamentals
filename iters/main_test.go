@@ -3,6 +3,7 @@ package main
 import (
 	"iter"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -106,6 +107,82 @@ func TestFilter(t *testing.T) {
 			got := iterAsSlice(Filter(test.iter, test.predicate))
 			assertEqual(t, test.name, got, test.want)
 		})
+	}
+}
+
+func TestMap(t *testing.T) {
+	// mapper is super primitive but it should care about all errors and nil value.
+	// Otherwise it should be iter.Seq2 and work with errors somehow?
+	mapper := func(v string) int {
+		r, _ := strconv.Atoi(v)
+		return r
+	}
+
+	tests := []struct {
+		name string
+		data []string
+		want []int
+	}{
+		{
+			name: "when converting empty iter then get an empy result iter",
+			data: []string{},
+			want: []int{},
+		},
+		{
+			name: "when converting valid num string, then get a valid int slice",
+			data: []string{"1", "2", "3"},
+			want: []int{1, 2, 3},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			iter := Map(SliceAsIter(test.data), mapper)
+			got := iterAsSlice(iter)
+			assertEqual(t, test.name, got, test.want)
+		})
+	}
+}
+
+func TestTake(t *testing.T) {
+	dataSeq := Range(0, 99)
+	dataSlice := iterAsSlice(dataSeq)
+
+	tests := []struct {
+		name string
+		take int
+		want []int
+	}{
+		{
+			name: "when take 0, then empty output",
+			take: 0,
+			want: []int{},
+		},
+		{
+			name: "when take 1, then first element from input iterator",
+			take: 1,
+			want: dataSlice[:1],
+		},
+		{
+			name: "when take 10, then iter of 10 first",
+			take: 10,
+			want: dataSlice[:10],
+		},
+		{
+			name: "when take more then in input iterators, then return all available and thats all",
+			take: 200,
+			want: dataSlice,
+		},
+		{
+			name: "when take is negative value, then empty output",
+			take: -100,
+			want: []int{},
+		},
+	}
+	for _, test := range tests {
+		iter := Take(dataSeq, test.take)
+		got := iterAsSlice(iter)
+		assertEqual(t, "when take is 1, then slice len is 1", got, test.want)
 	}
 }
 

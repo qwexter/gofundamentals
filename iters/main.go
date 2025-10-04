@@ -41,5 +41,25 @@ func Filter[T any](iter iter.Seq[T], predicate func(T) bool) iter.Seq[T] {
 // Example: Map(Range(1, 3), func(n int) int { return n * 2 })
 // should yield: 2, 4, 6
 func Map[T, U any](seq iter.Seq[T], mapper func(T) U) iter.Seq[U] {
-	return nil
+	return func(yeild func(U) bool) {
+		for v := range seq {
+			if !yeild(mapper(v)) {
+				return
+			}
+		}
+	}
+}
+
+// Take - an iterator that yields only the first n elements
+// Example: Take(Range(1, 100), 3) should yield: 1, 2, 3
+func Take[T any](seq iter.Seq[T], n int) iter.Seq[T] {
+	i := 0
+	return func(yeild func(T) bool) {
+		for v := range seq {
+			if i >= n || !yeild(v) {
+				return
+			}
+			i++
+		}
+	}
 }
