@@ -222,6 +222,48 @@ func TestCycle(t *testing.T) {
 }
 
 func TestEnumerate(t *testing.T) {
+	type Result struct {
+		i int
+		v string
+	}
+	data := []string{"zero", "one", "two", "three", "four", "five"}
+	iter := Enumerate(data)
+
+	got := make([]Result, len(data))
+	for i, v := range iter {
+		got[i] = Result{
+			i: i,
+			v: v,
+		}
+	}
+
+	want := []Result{
+		{
+			i: 0,
+			v: "zero",
+		},
+		{
+			i: 1,
+			v: "one",
+		},
+		{
+			i: 2,
+			v: "two",
+		},
+		{
+			i: 3,
+			v: "three",
+		},
+		{
+			i: 4,
+			v: "four",
+		},
+		{
+			i: 5,
+			v: "five",
+		},
+	}
+	assertEqual(t, "when get input then get enumerated output", got, want)
 }
 
 func iterAsSlice[T any](iter iter.Seq[T]) []T {

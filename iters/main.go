@@ -88,5 +88,14 @@ func Cycle[T any](items []T) iter.Seq[T] {
 // Create an iterator that yields both index and value
 // Example: Enumerate([]string{"a", "b", "c"}) yields: (0, "a"), (1, "b"), (2, "c")
 func Enumerate[T any](items []T) iter.Seq2[int, T] {
-	return nil
+	return func(yeild func(int, T) bool) {
+		if len(items) <= 0 {
+			return
+		}
+		for i, v := range items {
+			if !yeild(i, v) {
+				return
+			}
+		}
+	}
 }
