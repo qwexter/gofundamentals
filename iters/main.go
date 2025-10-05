@@ -53,8 +53,11 @@ func Map[T, U any](seq iter.Seq[T], mapper func(T) U) iter.Seq[U] {
 // Take - an iterator that yields only the first n elements
 // Example: Take(Range(1, 100), 3) should yield: 1, 2, 3
 func Take[T any](seq iter.Seq[T], n int) iter.Seq[T] {
-	i := 0
 	return func(yeild func(T) bool) {
+		if n <= 0 {
+			return
+		}
+		i := 0
 		for v := range seq {
 			if i >= n || !yeild(v) {
 				return
@@ -79,4 +82,11 @@ func Cycle[T any](items []T) iter.Seq[T] {
 			}
 		}
 	}
+}
+
+// Enumerate - Key-Value Iterator (Seq2)
+// Create an iterator that yields both index and value
+// Example: Enumerate([]string{"a", "b", "c"}) yields: (0, "a"), (1, "b"), (2, "c")
+func Enumerate[T any](items []T) iter.Seq2[int, T] {
+	return nil
 }

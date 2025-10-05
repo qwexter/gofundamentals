@@ -182,7 +182,7 @@ func TestTake(t *testing.T) {
 	for _, test := range tests {
 		iter := Take(dataSeq, test.take)
 		got := iterAsSlice(iter)
-		assertEqual(t, "when take is 1, then slice len is 1", got, test.want)
+		assertEqual(t, test.name, got, test.want)
 	}
 }
 
@@ -219,6 +219,9 @@ func TestCycle(t *testing.T) {
 		got := iterAsSlice(wrap)
 		assertEqual(t, test.name, got, test.want)
 	}
+}
+
+func TestEnumerate(t *testing.T) {
 }
 
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
