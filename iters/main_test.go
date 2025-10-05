@@ -199,6 +199,18 @@ func TestCycle(t *testing.T) {
 			take:  10,
 			want:  []int{},
 		},
+		{
+			name:  "when we have take less than clice to cycle, then we get only taken count",
+			input: []int{1, 2, 3, 4, 5, 6, 7, 8, 9},
+			take:  3,
+			want:  []int{1, 2, 3},
+		},
+		{
+			name:  "when slice to cycle is shorter than taken count, then we get repeated slice bounded by taken",
+			input: []int{0, 1},
+			take:  7,
+			want:  []int{0, 1, 0, 1, 0, 1, 0},
+		},
 	}
 
 	for _, test := range tests {
