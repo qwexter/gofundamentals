@@ -1,6 +1,8 @@
 package main
 
-import "iter"
+import (
+	"iter"
+)
 
 func main() {}
 
@@ -94,6 +96,28 @@ func Enumerate[T any](items []T) iter.Seq2[int, T] {
 		}
 		for i, v := range items {
 			if !yeild(i, v) {
+				return
+			}
+		}
+	}
+}
+
+// Zip Iterator (Seq2) - Create an iterator that combines two sequences into pairs
+// Stops when the shorter sequence ends
+// Example: Zip(Range(1, 3), Range(10, 15)) yields: (1, 10), (2, 11), (3, 12)
+func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
+	return func(yeild func(T, U) bool) {
+		n1, s1 := iter.Pull(seq1)
+		n2, s2 := iter.Pull(seq2)
+		defer s1()
+		defer s2()
+		for {
+			v1, ok1 := n1()
+			v2, ok2 := n2()
+			if !ok1 || !ok2 {
+				return
+			}
+			if !yeild(v1, v2) {
 				return
 			}
 		}

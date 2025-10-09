@@ -266,6 +266,24 @@ func TestEnumerate(t *testing.T) {
 	assertEqual(t, "when get input then get enumerated output", got, want)
 }
 
+func TestZip(t *testing.T) {
+	seq1 := SliceAsIter([]int{0, 1, 2, 3, 4})
+	seq2 := SliceAsIter([]string{"0", "1", "2", "3", "4"})
+
+	seqResult := Zip(seq1, seq2)
+	got := iter2AsSlice(seqResult)
+
+	want := []pair[int, string]{
+		{first: 0, second: "0"},
+		{first: 1, second: "1"},
+		{first: 2, second: "2"},
+		{first: 3, second: "3"},
+		{first: 4, second: "4"},
+	}
+
+	assertEqual(t, "when length are same, all elements zipped", got, want)
+}
+
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
 	got := []T{}
 	for v := range iter {
@@ -280,4 +298,18 @@ func assertEqual[T any](t *testing.T, test string, got, want []T) {
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("for test: %s error, got %v, but want %v", test, got, want)
 	}
+}
+
+func iter2AsSlice[T, U any](iter iter.Seq2[T, U]) []pair[T, U] {
+	r := []pair[T, U]{}
+	for t, u := range iter {
+		p := pair[T, U]{first: t, second: u}
+		r = append(r, p)
+	}
+	return r
+}
+
+type pair[T, U any] struct {
+	first  T
+	second U
 }
