@@ -267,33 +267,59 @@ func TestEnumerate(t *testing.T) {
 }
 
 func TestZip(t *testing.T) {
-	seq1 := SliceAsIter([]int{0, 1, 2, 3, 4})
-	seq2 := SliceAsIter([]string{"0", "1", "2", "3", "4"})
-
-	seqResult := Zip(seq1, seq2)
-	got := iter2AsSlice(seqResult)
-
-	want := []pair[int, string]{
-		{first: 0, second: "0"},
-		{first: 1, second: "1"},
-		{first: 2, second: "2"},
-		{first: 3, second: "3"},
-		{first: 4, second: "4"},
+	type TZip[T, U any] struct {
+		name string
+		in1  []T
+		in2  []U
+		want []pair[T, U]
+	}
+	tests := []TZip[int, string]{
+		{
+			name: "when both empty, then empty seq",
+			in1:  []int{},
+			in2:  []string{},
+			want: []pair[int, string]{},
+		},
+		{
+			name: "when left is shorter, then result is same length as shortest",
+			in1:  []int{0, 1, 2},
+			in2:  []string{"0", "1", "2", "3", "4"},
+			want: []pair[int, string]{
+				{first: 0, second: "0"},
+				{first: 1, second: "1"},
+				{first: 2, second: "2"},
+			},
+		},
+		{
+			name: "when right is shorter, then result is same length as shortest",
+			in1:  []int{0, 1, 2, 3, 4},
+			in2:  []string{"0", "1"},
+			want: []pair[int, string]{
+				{first: 0, second: "0"},
+				{first: 1, second: "1"},
+			},
+		},
+		{
+			name: "when both same non-empty length, then same length seq",
+			in1:  []int{0, 1, 2, 3, 4},
+			in2:  []string{"0", "1", "2", "3", "4"},
+			want: []pair[int, string]{
+				{first: 0, second: "0"},
+				{first: 1, second: "1"},
+				{first: 2, second: "2"},
+				{first: 3, second: "3"},
+				{first: 4, second: "4"},
+			},
+		},
 	}
 
-	assertEqual(t, "when length are same, all elements zipped", got, want)
+	for _, test := range tests {
+		seq1 := SliceAsIter(test.in1)
+		seq2 := SliceAsIter(test.in2)
 
-	seq1 = SliceAsIter([]int{0, 1, 2})
-	seq2 = SliceAsIter([]string{"0", "1"})
-
-	got = iter2AsSlice(Zip(seq1, seq2))
-
-	want = []pair[int, string]{
-		{first: 0, second: "0"},
-		{first: 1, second: "1"},
+		got := iter2AsSlice(Zip(seq1, seq2))
+		assertEqual(t, test.name, got, test.want)
 	}
-	
-	assertEqual(t, "when length of seqs are different, take shortest", got, want)
 }
 
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
