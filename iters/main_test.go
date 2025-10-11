@@ -282,6 +282,18 @@ func TestZip(t *testing.T) {
 	}
 
 	assertEqual(t, "when length are same, all elements zipped", got, want)
+
+	seq1 = SliceAsIter([]int{0, 1, 2})
+	seq2 = SliceAsIter([]string{"0", "1"})
+
+	got = iter2AsSlice(Zip(seq1, seq2))
+
+	want = []pair[int, string]{
+		{first: 0, second: "0"},
+		{first: 1, second: "1"},
+	}
+	
+	assertEqual(t, "when length of seqs are different, take shortest", got, want)
 }
 
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
