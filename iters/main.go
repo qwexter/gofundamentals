@@ -123,3 +123,18 @@ func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
 		}
 	}
 }
+
+// Flatten Iterator
+// Create an iterator that flattens a sequence of sequences
+// Example: Flatten([][]int{{1, 2}, {3, 4}, {5}}) yields: 1, 2, 3, 4, 5 TODO: rewrite example to work with seq
+func Flatten[T any](seqs iter.Seq[[]T]) iter.Seq[T] {
+	return func(yeild func(T) bool) {
+		for s := range seqs {
+			for _, v := range s {
+				if !yeild(v) {
+					return
+				}
+			}
+		}
+	}
+}

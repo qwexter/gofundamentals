@@ -322,6 +322,16 @@ func TestZip(t *testing.T) {
 	}
 }
 
+func TestFlattern(t *testing.T) {
+	in := SliceAsIter([][]int{{0}, {1}, {2}})
+
+	got := iterAsSlice(Flatten(in))
+
+	want := []int{0, 1, 2}
+
+	assertEqual(t, "when we get an input of slice of slices, get a on result iter in the end", got, want)
+}
+
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
 	got := []T{}
 	for v := range iter {
