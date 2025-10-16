@@ -322,14 +322,39 @@ func TestZip(t *testing.T) {
 	}
 }
 
-func TestFlattern(t *testing.T) {
-	in := SliceAsIter([][]int{{0}, {1}, {2}})
+func TestFlatten(t *testing.T) {
+	tests := []struct {
+		name string
+		in   [][]int
+		want []int
+	}{
+		{
+			"when empty input, get an empty output",
+			[][]int{},
+			[]int{},
+		},
+		{
+			"when input of empty iters, then empty output",
+			[][]int{{}, {}, {}},
+			[]int{},
+		},
+		{
+			"when input mixed empty and non-empty, then output only non-empy values",
+			[][]int{{}, {1, 2, 3}, {}},
+			[]int{1, 2, 3},
+		},
+		{
+			"when non empty input, then output only non-empy values",
+			[][]int{{0}, {1, 2, 3}, {4}},
+			[]int{0, 1, 2, 3, 4},
+		},
+	}
 
-	got := iterAsSlice(Flatten(in))
-
-	want := []int{0, 1, 2}
-
-	assertEqual(t, "when we get an input of slice of slices, get a on result iter in the end", got, want)
+	for _, test := range tests {
+		in := SliceAsIter(test.in)
+		got := iterAsSlice(Flatten(in))
+		assertEqual(t, test.name, got, test.want)
+	}
 }
 
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
