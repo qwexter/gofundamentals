@@ -222,48 +222,32 @@ func TestCycle(t *testing.T) {
 }
 
 func TestEnumerate(t *testing.T) {
-	type Result struct {
-		i int
-		v string
+	tests := []struct {
+		name string
+		in   []string
+		want []pair[int, string]
+	}{
+		{
+			name: "when empty input, then empty output",
+			in:   []string{},
+			want: []pair[int, string]{},
+		},
+		{
+			name: "when non-empty input, then enumerated output",
+			in:   []string{"0", "1", "2"},
+			want: []pair[int, string]{{0, "0"}, {1, "1"}, {2, "2"}},
+		},
 	}
-	data := []string{"zero", "one", "two", "three", "four", "five"}
-	iter := Enumerate(data)
 
-	got := make([]Result, len(data))
-	for i, v := range iter {
-		got[i] = Result{
-			i: i,
-			v: v,
+	for _, test := range tests {
+		iter := Enumerate(test.in)
+
+		got := make([]pair[int, string], len(test.in))
+		for i, v := range iter {
+			got[i] = pair[int, string]{i, v}
 		}
+		assertEqual(t, "when get input then get enumerated output", got, test.want)
 	}
-
-	want := []Result{
-		{
-			i: 0,
-			v: "zero",
-		},
-		{
-			i: 1,
-			v: "one",
-		},
-		{
-			i: 2,
-			v: "two",
-		},
-		{
-			i: 3,
-			v: "three",
-		},
-		{
-			i: 4,
-			v: "four",
-		},
-		{
-			i: 5,
-			v: "five",
-		},
-	}
-	assertEqual(t, "when get input then get enumerated output", got, want)
 }
 
 func TestZip(t *testing.T) {
