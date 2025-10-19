@@ -16,8 +16,12 @@ func SliceAsIter[T any](s []T) iter.Seq[T] {
 	}
 }
 
+// TODO: check the logic in standard lib implementation, how they work with "empty" range.
 func Range(start, end int) iter.Seq[int] {
 	return func(yeild func(int) bool) {
+		if start <= 0 && end == 0 {
+			return
+		}
 		for i := start; i <= end; i++ {
 			if !yeild(i) {
 				return
@@ -134,6 +138,33 @@ func Flatten[T any](seqs iter.Seq[[]T]) iter.Seq[T] {
 				if !yeild(v) {
 					return
 				}
+			}
+		}
+	}
+}
+
+// Chunk Iterator
+// Create an iterator that groups elements into chunks of size n
+// Example: Chunk(Range(1, 7), 3) yields: [1,2,3], [4,5,6], [7]
+func Chunk[T int](seq iter.Seq[T], size int) iter.Seq[[]T] {
+	return func(yield func([]T) bool) {
+		if size <= 0 {
+			return
+		}
+		chunk := make([]T, 0, size)
+
+		for v := range seq {
+			chunk = append(chunk, v)
+			if len(chunk) == size {
+				if !yield(chunk) {
+					return
+				}
+				chunk = make([]T, 0, size)
+			}
+		}
+		if len(chunk) > 0 {
+			if !yield(chunk) {
+				return
 			}
 		}
 	}

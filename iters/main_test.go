@@ -59,6 +59,12 @@ func TestRange(t *testing.T) {
 			to:   -4,
 			want: []int{-5, -4},
 		},
+		{
+			name: "range from 0 to 0, empty slice",
+			from: 0,
+			to:   0,
+			want: []int{},
+		},
 	}
 
 	for _, test := range tests {
@@ -337,6 +343,52 @@ func TestFlatten(t *testing.T) {
 	for _, test := range tests {
 		in := SliceAsIter(test.in)
 		got := iterAsSlice(Flatten(in))
+		assertEqual(t, test.name, got, test.want)
+	}
+}
+
+func TestChunk(t *testing.T) {
+	tests := []struct {
+		name    string
+		in      pair[int, int]
+		chunkBy int
+		want    [][]int
+	}{
+		{
+			name:    "when empty input and zero chunkBy, then empty output",
+			in:      pair[int, int]{0, 0},
+			chunkBy: 0,
+			want:    [][]int{},
+		},
+		{
+			name:    "when input is zero length and chunk > 0, then empty output",
+			in:      pair[int, int]{0, 0},
+			chunkBy: 0,
+			want:    [][]int{},
+		},
+		{
+			name:    "when input non empty and chunk is 0, then empty output",
+			in:      pair[int, int]{0, 5},
+			chunkBy: 0,
+			want:    [][]int{},
+		},
+		{
+			name:    "when input non empty and chunk less then input length, then chunked output",
+			in:      pair[int, int]{0, 5},
+			chunkBy: 1,
+			want:    [][]int{{0}, {1}, {2}, {3}, {4}, {5}},
+		},
+		{
+			name:    "when input non empty and chunk more then input length, then one chunk as an output",
+			in:      pair[int, int]{0, 5},
+			chunkBy: 6,
+			want:    [][]int{{0, 1, 2, 3, 4, 5}},
+		},
+	}
+
+	for _, test := range tests {
+		in := Range(test.in.first, test.in.second)
+		got := iterAsSlice(Chunk(in, test.chunkBy))
 		assertEqual(t, test.name, got, test.want)
 	}
 }
