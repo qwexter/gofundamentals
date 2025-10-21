@@ -393,6 +393,41 @@ func TestChunk(t *testing.T) {
 	}
 }
 
+func TestReduce(t *testing.T) {
+	tests := []struct {
+		in      iter.Seq[int]
+		initial int
+		want    int
+	}{
+		{
+			in:      Range(1, 5),
+			initial: 0,
+			want:    15,
+		},
+		{
+			in:      Range(0, 0),
+			initial: 0,
+			want:    0,
+		},
+		{
+			in:      Range(1, 5),
+			initial: 10,
+			want:    25,
+		},
+	}
+
+	reducer := func(acc, n int) int {
+		return acc + n
+	}
+
+	for _, test := range tests {
+		got := Reduce(test.in, test.initial, reducer)
+		if got != test.want {
+			t.Errorf("got %v, want %v", got, test.want)
+		}
+	}
+}
+
 func iterAsSlice[T any](iter iter.Seq[T]) []T {
 	got := []T{}
 	for v := range iter {

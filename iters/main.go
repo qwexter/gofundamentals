@@ -169,3 +169,16 @@ func Chunk[T int](seq iter.Seq[T], size int) iter.Seq[[]T] {
 		}
 	}
 }
+
+// Reduce/Fold
+// Not an iterator, but useful for consuming them
+// Reduce a sequence to a single value using an accumulator function
+// Example: Reduce(Range(1, 5), 0, func(acc, n int) int { return acc + n })
+// should return: 15 (sum of 1+2+3+4+5)
+func Reduce[T, U any](seq iter.Seq[T], initial U, reducer func(U, T) U) U {
+	r := initial
+	for v := range seq {
+		r = reducer(r, v)
+	}
+	return r
+}
