@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	finalPhrase    = "Go!"
+	finalPhrase   = "Go!"
 	countdownFrom = 3
 )
 
