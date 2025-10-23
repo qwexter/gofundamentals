@@ -3,31 +3,10 @@ package main
 import (
 	"iter"
 	"reflect"
+	"slices"
 	"strconv"
 	"testing"
 )
-
-func TestIterAsSlice(t *testing.T) {
-	tests := []struct {
-		name  string
-		input []int
-	}{
-		{
-			name:  "when empty slice then empty iter",
-			input: []int{},
-		},
-		{
-			name:  "when non empty slice then same values as iter",
-			input: []int{1, 3, 2, 4},
-		},
-	}
-
-	for _, test := range tests {
-		iter := SliceAsIter(test.input)
-		got := iterAsSlice(iter)
-		assertEqual(t, test.name, got, test.input)
-	}
-}
 
 func TestRange(t *testing.T) {
 	tests := []struct {
@@ -143,7 +122,7 @@ func TestMap(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			iter := Map(SliceAsIter(test.data), mapper)
+			iter := Map(slices.Values(test.data), mapper)
 			got := iterAsSlice(iter)
 			assertEqual(t, test.name, got, test.want)
 		})
@@ -304,8 +283,8 @@ func TestZip(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		seq1 := SliceAsIter(test.in1)
-		seq2 := SliceAsIter(test.in2)
+		seq1 := slices.Values(test.in1)
+		seq2 := slices.Values(test.in2)
 
 		got := iter2AsSlice(Zip(seq1, seq2))
 		assertEqual(t, test.name, got, test.want)
@@ -341,7 +320,7 @@ func TestFlatten(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		in := SliceAsIter(test.in)
+		in := slices.Values(test.in)
 		got := iterAsSlice(Flatten(in))
 		assertEqual(t, test.name, got, test.want)
 	}

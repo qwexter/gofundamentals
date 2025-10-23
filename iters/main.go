@@ -6,16 +6,6 @@ import (
 
 func main() {}
 
-func SliceAsIter[T any](s []T) iter.Seq[T] {
-	return func(yeild func(T) bool) {
-		for _, v := range s {
-			if !yeild(v) {
-				return
-			}
-		}
-	}
-}
-
 // TODO: check the logic in standard lib implementation, how they work with "empty" range.
 func Range(start, end int) iter.Seq[int] {
 	return func(yeild func(int) bool) {
