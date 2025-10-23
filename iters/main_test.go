@@ -15,44 +15,44 @@ func TestRange(t *testing.T) {
 		want     []int
 	}{
 		{
-			name: "range from 0 to 5 including",
+			name: "range from [0 to 5)",
 			from: 0,
 			to:   5,
-			want: []int{0, 1, 2, 3, 4, 5},
+			want: []int{0, 1, 2, 3, 4,},
 		},
 		{
-			name: "range from 3 to 5 including",
+			name: "range from [3 to 5)",
 			from: 3,
 			to:   5,
-			want: []int{3, 4, 5},
+			want: []int{3, 4,},
 		},
 		{
-			name: "range from 5 to 4 including",
+			name: "range from [5 to 4)",
 			from: 5,
 			to:   4,
-			want: []int{},
+			want: nil,
 		},
 		{
-			name: "range from -5 to -4 including",
+			name: "range from [-5 to -4)",
 			from: -5,
 			to:   -4,
-			want: []int{-5, -4},
+			want: []int{-5,},
 		},
 		{
 			name: "range from 0 to 0, empty slice",
 			from: 0,
 			to:   0,
-			want: []int{},
+			want: nil,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := iterAsSlice(Range(test.from, test.to))
+			got := slices.Collect(Range(test.from, test.to))
 			assertEqual(t, test.name, got, test.want)
 		})
 	}
-}
+} 
 
 func TestFilter(t *testing.T) {
 	tests := []struct {
@@ -65,13 +65,13 @@ func TestFilter(t *testing.T) {
 			name:      "no positive predicate",
 			iter:      Range(1, 5),
 			predicate: func(i int) bool { return false },
-			want:      []int{},
+			want:      nil,
 		},
 		{
 			name:      "all positive predicate",
 			iter:      Range(1, 5),
 			predicate: func(i int) bool { return true },
-			want:      []int{1, 2, 3, 4, 5},
+			want:      []int{1, 2, 3, 4},
 		},
 		{
 			name:      "even numbers only",
@@ -83,13 +83,13 @@ func TestFilter(t *testing.T) {
 			name:      "empy input, empty output",
 			iter:      Range(6, 5),
 			predicate: func(i int) bool { return i%2 == 0 },
-			want:      []int{},
+			want:      nil,
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			got := iterAsSlice(Filter(test.iter, test.predicate))
+			got := slices.Collect(Filter(test.iter, test.predicate))
 			assertEqual(t, test.name, got, test.want)
 		})
 	}
@@ -111,7 +111,7 @@ func TestMap(t *testing.T) {
 		{
 			name: "when converting empty iter then get an empy result iter",
 			data: []string{},
-			want: []int{},
+			want: nil,
 		},
 		{
 			name: "when converting valid num string, then get a valid int slice",
@@ -123,7 +123,7 @@ func TestMap(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			iter := Map(slices.Values(test.data), mapper)
-			got := iterAsSlice(iter)
+			got := slices.Collect(iter)
 			assertEqual(t, test.name, got, test.want)
 		})
 	}
@@ -131,7 +131,7 @@ func TestMap(t *testing.T) {
 
 func TestTake(t *testing.T) {
 	dataSeq := Range(0, 99)
-	dataSlice := iterAsSlice(dataSeq)
+	dataSlice := slices.Collect(dataSeq)
 
 	tests := []struct {
 		name string
@@ -141,7 +141,7 @@ func TestTake(t *testing.T) {
 		{
 			name: "when take 0, then empty output",
 			take: 0,
-			want: []int{},
+			want: nil,
 		},
 		{
 			name: "when take 1, then first element from input iterator",
@@ -161,12 +161,12 @@ func TestTake(t *testing.T) {
 		{
 			name: "when take is negative value, then empty output",
 			take: -100,
-			want: []int{},
+			want: nil,
 		},
 	}
 	for _, test := range tests {
 		iter := Take(dataSeq, test.take)
-		got := iterAsSlice(iter)
+		got := slices.Collect(iter)
 		assertEqual(t, test.name, got, test.want)
 	}
 }
@@ -182,7 +182,7 @@ func TestCycle(t *testing.T) {
 			name:  "empty input, empty output",
 			input: []int{},
 			take:  10,
-			want:  []int{},
+			want:  nil,
 		},
 		{
 			name:  "when we have take less than clice to cycle, then we get only taken count",
@@ -201,7 +201,7 @@ func TestCycle(t *testing.T) {
 	for _, test := range tests {
 		iter := Cycle(test.input)
 		wrap := Take(iter, test.take)
-		got := iterAsSlice(wrap)
+		got := slices.Collect(wrap)
 		assertEqual(t, test.name, got, test.want)
 	}
 }
@@ -300,12 +300,12 @@ func TestFlatten(t *testing.T) {
 		{
 			"when empty input, get an empty output",
 			[][]int{},
-			[]int{},
+			nil,
 		},
 		{
 			"when input of empty iters, then empty output",
 			[][]int{{}, {}, {}},
-			[]int{},
+			nil,
 		},
 		{
 			"when input mixed empty and non-empty, then output only non-empy values",
@@ -321,7 +321,7 @@ func TestFlatten(t *testing.T) {
 
 	for _, test := range tests {
 		in := slices.Values(test.in)
-		got := iterAsSlice(Flatten(in))
+		got := slices.Collect(Flatten(in))
 		assertEqual(t, test.name, got, test.want)
 	}
 }
@@ -337,29 +337,29 @@ func TestChunk(t *testing.T) {
 			name:    "when empty input and zero chunkBy, then empty output",
 			in:      pair[int, int]{0, 0},
 			chunkBy: 0,
-			want:    [][]int{},
+			want:    nil,
 		},
 		{
 			name:    "when input is zero length and chunk > 0, then empty output",
 			in:      pair[int, int]{0, 0},
 			chunkBy: 0,
-			want:    [][]int{},
+			want:    nil,
 		},
 		{
 			name:    "when input non empty and chunk is 0, then empty output",
 			in:      pair[int, int]{0, 5},
 			chunkBy: 0,
-			want:    [][]int{},
+			want:    nil,
 		},
 		{
 			name:    "when input non empty and chunk less then input length, then chunked output",
-			in:      pair[int, int]{0, 5},
+			in:      pair[int, int]{0, 6},
 			chunkBy: 1,
 			want:    [][]int{{0}, {1}, {2}, {3}, {4}, {5}},
 		},
 		{
 			name:    "when input non empty and chunk more then input length, then one chunk as an output",
-			in:      pair[int, int]{0, 5},
+			in:      pair[int, int]{0, 6},
 			chunkBy: 6,
 			want:    [][]int{{0, 1, 2, 3, 4, 5}},
 		},
@@ -367,7 +367,7 @@ func TestChunk(t *testing.T) {
 
 	for _, test := range tests {
 		in := Range(test.in.first, test.in.second)
-		got := iterAsSlice(Chunk(in, test.chunkBy))
+		got := slices.Collect(Chunk(in, test.chunkBy))
 		assertEqual(t, test.name, got, test.want)
 	}
 }
@@ -379,7 +379,7 @@ func TestReduce(t *testing.T) {
 		want    int
 	}{
 		{
-			in:      Range(1, 5),
+			in:      Range(1, 6),
 			initial: 0,
 			want:    15,
 		},
@@ -389,7 +389,7 @@ func TestReduce(t *testing.T) {
 			want:    0,
 		},
 		{
-			in:      Range(1, 5),
+			in:      Range(1, 6),
 			initial: 10,
 			want:    25,
 		},
@@ -405,14 +405,6 @@ func TestReduce(t *testing.T) {
 			t.Errorf("got %v, want %v", got, test.want)
 		}
 	}
-}
-
-func iterAsSlice[T any](iter iter.Seq[T]) []T {
-	got := []T{}
-	for v := range iter {
-		got = append(got, v)
-	}
-	return got
 }
 
 func assertEqual[T any](t *testing.T, test string, got, want []T) {

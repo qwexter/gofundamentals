@@ -9,10 +9,7 @@ func main() {}
 // TODO: check the logic in standard lib implementation, how they work with "empty" range.
 func Range(start, end int) iter.Seq[int] {
 	return func(yeild func(int) bool) {
-		if start <= 0 && end == 0 {
-			return
-		}
-		for i := start; i <= end; i++ {
+		for i := start; i < end; i++ {
 			if !yeild(i) {
 				return
 			}
