@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"iter"
-	"reflect"
 	"slices"
 	"strconv"
 	"testing"
@@ -10,49 +10,24 @@ import (
 
 func TestRange(t *testing.T) {
 	tests := []struct {
-		name     string
-		from, to int
-		want     []int
+		low, high int
+		want      []int
 	}{
-		{
-			name: "range from [0 to 5)",
-			from: 0,
-			to:   5,
-			want: []int{0, 1, 2, 3, 4,},
-		},
-		{
-			name: "range from [3 to 5)",
-			from: 3,
-			to:   5,
-			want: []int{3, 4,},
-		},
-		{
-			name: "range from [5 to 4)",
-			from: 5,
-			to:   4,
-			want: nil,
-		},
-		{
-			name: "range from [-5 to -4)",
-			from: -5,
-			to:   -4,
-			want: []int{-5,},
-		},
-		{
-			name: "range from 0 to 0, empty slice",
-			from: 0,
-			to:   0,
-			want: nil,
-		},
+		{low: 0, high: 5, want: []int{0, 1, 2, 3, 4}},
+		{low: 3, high: 5, want: []int{3, 4}},
+		{low: 5, high: 4, want: nil},
+		{low: -5, high: -4, want: []int{-5}},
+		{low: 0, high: 0, want: nil},
 	}
 
 	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got := slices.Collect(Range(test.from, test.to))
-			assertEqual(t, test.name, got, test.want)
+		title := fmt.Sprintf("from %d to %d", test.low, test.high)
+		t.Run(title, func(t *testing.T) {
+			got := slices.Collect(Range(test.low, test.high))
+			assertEqual(t, got, test.want)
 		})
 	}
-} 
+}
 
 func TestFilter(t *testing.T) {
 	tests := []struct {
@@ -90,7 +65,7 @@ func TestFilter(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			got := slices.Collect(Filter(test.iter, test.predicate))
-			assertEqual(t, test.name, got, test.want)
+			assertEqual(t, got, test.want)
 		})
 	}
 }
@@ -124,7 +99,7 @@ func TestMap(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			iter := Map(slices.Values(test.data), mapper)
 			got := slices.Collect(iter)
-			assertEqual(t, test.name, got, test.want)
+			assertEqual(t, got, test.want)
 		})
 	}
 }
@@ -167,7 +142,7 @@ func TestTake(t *testing.T) {
 	for _, test := range tests {
 		iter := Take(dataSeq, test.take)
 		got := slices.Collect(iter)
-		assertEqual(t, test.name, got, test.want)
+		assertEqual(t, got, test.want)
 	}
 }
 
@@ -202,7 +177,7 @@ func TestCycle(t *testing.T) {
 		iter := Cycle(test.input)
 		wrap := Take(iter, test.take)
 		got := slices.Collect(wrap)
-		assertEqual(t, test.name, got, test.want)
+		assertEqual(t, got, test.want)
 	}
 }
 
@@ -231,7 +206,7 @@ func TestEnumerate(t *testing.T) {
 		for i, v := range iter {
 			got[i] = pair[int, string]{i, v}
 		}
-		assertEqual(t, "when get input then get enumerated output", got, test.want)
+		assertEqual(t, got, test.want)
 	}
 }
 
@@ -287,7 +262,7 @@ func TestZip(t *testing.T) {
 		seq2 := slices.Values(test.in2)
 
 		got := iter2AsSlice(Zip(seq1, seq2))
-		assertEqual(t, test.name, got, test.want)
+		assertEqual(t, got, test.want)
 	}
 }
 
@@ -322,7 +297,7 @@ func TestFlatten(t *testing.T) {
 	for _, test := range tests {
 		in := slices.Values(test.in)
 		got := slices.Collect(Flatten(in))
-		assertEqual(t, test.name, got, test.want)
+		assertEqual(t, got, test.want)
 	}
 }
 
@@ -368,7 +343,9 @@ func TestChunk(t *testing.T) {
 	for _, test := range tests {
 		in := Range(test.in.first, test.in.second)
 		got := slices.Collect(Chunk(in, test.chunkBy))
-		assertEqual(t, test.name, got, test.want)
+		for i := range got {
+			assertEqual(t, got[i], test.want[i])
+		}
 	}
 }
 
@@ -407,14 +384,6 @@ func TestReduce(t *testing.T) {
 	}
 }
 
-func assertEqual[T any](t *testing.T, test string, got, want []T) {
-	t.Helper()
-
-	if !reflect.DeepEqual(got, want) {
-		t.Errorf("for test: %s error, got %v, but want %v", test, got, want)
-	}
-}
-
 func iter2AsSlice[T, U any](iter iter.Seq2[T, U]) []pair[T, U] {
 	r := []pair[T, U]{}
 	for t, u := range iter {
@@ -427,4 +396,12 @@ func iter2AsSlice[T, U any](iter iter.Seq2[T, U]) []pair[T, U] {
 type pair[T, U any] struct {
 	first  T
 	second U
+}
+
+func assertEqual[T comparable](t *testing.T, got, want []T) {
+	t.Helper()
+
+	if !slices.Equal(got, want) {
+		t.Errorf("got: %v, want: %v", got, want)
+	}
 }

@@ -6,10 +6,13 @@ import (
 
 func main() {}
 
-// TODO: check the logic in standard lib implementation, how they work with "empty" range.
-func Range(start, end int) iter.Seq[int] {
+// Range creates an iterator that produce elements from low till high (non-inclusive).
+// If start is more or equal to end then empty iterator is used.
+// Both start and end could be negative value.
+// If iterator is empty then return nil.
+func Range(low, high int) iter.Seq[int] {
 	return func(yeild func(int) bool) {
-		for i := start; i < end; i++ {
+		for i := low; i < high; i++ {
 			if !yeild(i) {
 				return
 			}
