@@ -20,7 +20,6 @@ func Range(low, high int) iter.Seq[int] {
 	}
 }
 
-
 // Filter creates an iterator that produce elements only that pass predicate function.
 // Iterator doesn't handle any errors in preticate function, you should bare it yourself.
 // If terator is empty then return nil.
@@ -39,8 +38,8 @@ func Filter[T any](iter iter.Seq[T], predicate func(T) bool) iter.Seq[T] {
 	}
 }
 
-// Map iterator
-// Create an iterator that transforms each value using a mapping function
+// Map creates an iterator that applies mapper function for an input value and produce the result
+// of mapper function as an element of sequence.
 // Example: Map(Range(1, 3), func(n int) int { return n * 2 })
 // should yield: 2, 4, 6
 func Map[T, U any](seq iter.Seq[T], mapper func(T) U) iter.Seq[U] {

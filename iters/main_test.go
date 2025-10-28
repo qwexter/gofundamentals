@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"iter"
 	"slices"
-	"strconv"
 	"testing"
 )
 
@@ -44,7 +43,7 @@ func TestFilter(t *testing.T) {
 		},
 		{
 			name:      "nil input, then nil output",
-			iter:      Range(0,0),
+			iter:      Range(0, 0),
 			predicate: func(i int) bool { return false },
 			want:      []int{},
 		},
@@ -83,35 +82,38 @@ func TestFilter(t *testing.T) {
 }
 
 func TestMap(t *testing.T) {
-	// mapper is super primitive but it should care about all errors and nil value.
-	// Otherwise it should be iter.Seq2 and work with errors somehow?
-	mapper := func(v string) int {
-		r, _ := strconv.Atoi(v)
+	mapper := func(v int) int {
+		r := v * 2
 		return r
 	}
 
-	tests := []struct {
+	cases := []struct {
 		name string
-		data []string
+		data []int
 		want []int
 	}{
 		{
+			name: "when nil, them empty iter",
+			data: nil,
+			want: []int{},
+		},
+		{
 			name: "when converting empty iter then get an empy result iter",
-			data: []string{},
-			want: nil,
+			data: []int{},
+			want: []int{},
 		},
 		{
 			name: "when converting valid num string, then get a valid int slice",
-			data: []string{"1", "2", "3"},
-			want: []int{1, 2, 3},
+			data: []int{1, 2, 3},
+			want: []int{2, 4, 6},
 		},
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			iter := Map(slices.Values(test.data), mapper)
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			iter := Map(slices.Values(c.data), mapper)
 			got := slices.Collect(iter)
-			assertEqual(t, got, test.want)
+			assertEqual(t, got, c.want)
 		})
 	}
 }
