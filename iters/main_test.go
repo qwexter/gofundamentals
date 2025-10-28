@@ -173,12 +173,18 @@ func TestTake(t *testing.T) {
 }
 
 func TestCycle(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		name  string
 		input []int
 		take  int
 		want  []int
 	}{
+		{
+			name:  "nil input, empty output",
+			input: nil,
+			take:  10,
+			want:  nil,
+		},
 		{
 			name:  "empty input, empty output",
 			input: []int{},
@@ -199,11 +205,11 @@ func TestCycle(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		iter := Cycle(test.input)
-		wrap := Take(iter, test.take)
+	for _, c := range cases {
+		iter := Cycle(c.input)
+		wrap := Take(iter, c.take)
 		got := slices.Collect(wrap)
-		assertEqual(t, got, test.want)
+		assertEqual(t, got, c.want)
 	}
 }
 

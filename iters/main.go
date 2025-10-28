@@ -70,7 +70,7 @@ func Take[T any](seq iter.Seq[T], n int) iter.Seq[T] {
 	}
 }
 
-// Cycle Iterator - create an iterator that repeats a slice infinitely
+// Cycle creates an iterator that repeats an elements from slice infinitely one by one.
 // Example: Cycle([]int{1, 2, 3}) yields: 1, 2, 3, 1, 2, 3, 1, 2, 3, ...
 func Cycle[T any](items []T) iter.Seq[T] {
 	return func(yield func(T) bool) {
