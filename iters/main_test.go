@@ -122,41 +122,53 @@ func TestTake(t *testing.T) {
 	dataSeq := Range(0, 99)
 	dataSlice := slices.Collect(dataSeq)
 
-	tests := []struct {
-		name string
-		take int
-		want []int
+	cases := []struct {
+		name  string
+		input iter.Seq[int]
+		take  int
+		want  []int
 	}{
 		{
-			name: "when take 0, then empty output",
-			take: 0,
-			want: nil,
+			name:  "when take 100, then empty output",
+			input: nil,
+			take:  100,
+			want:  nil,
 		},
 		{
-			name: "when take 1, then first element from input iterator",
-			take: 1,
-			want: dataSlice[:1],
+			name:  "when take 0, then empty output",
+			input: nil,
+			take:  0,
+			want:  nil,
 		},
 		{
-			name: "when take 10, then iter of 10 first",
-			take: 10,
-			want: dataSlice[:10],
+			name:  "when take 1, then first element from input iterator",
+			input: dataSeq,
+			take:  1,
+			want:  dataSlice[:1],
 		},
 		{
-			name: "when take more then in input iterators, then return all available and thats all",
-			take: 200,
-			want: dataSlice,
+			name:  "when take 10, then iter of 10 first",
+			input: dataSeq,
+			take:  10,
+			want:  dataSlice[:10],
 		},
 		{
-			name: "when take is negative value, then empty output",
-			take: -100,
-			want: nil,
+			name:  "when take more then in input iterators, then return all available and thats all",
+			input: dataSeq,
+			take:  200,
+			want:  dataSlice,
+		},
+		{
+			name:  "when take is negative value, then empty output",
+			input: dataSeq,
+			take:  -100,
+			want:  nil,
 		},
 	}
-	for _, test := range tests {
-		iter := Take(dataSeq, test.take)
+	for _, c := range cases {
+		iter := Take(c.input, c.take)
 		got := slices.Collect(iter)
-		assertEqual(t, got, test.want)
+		assertEqual(t, got, c.want)
 	}
 }
 

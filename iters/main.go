@@ -52,11 +52,12 @@ func Map[T, U any](seq iter.Seq[T], mapper func(T) U) iter.Seq[U] {
 	}
 }
 
-// Take - an iterator that yields only the first n elements
+// Take creates an iterator that yields only the first n elements.
+// If seq produce less elements that n or nil, complete as usual iterator.
 // Example: Take(Range(1, 100), 3) should yield: 1, 2, 3
 func Take[T any](seq iter.Seq[T], n int) iter.Seq[T] {
 	return func(yield func(T) bool) {
-		if n <= 0 {
+		if seq == nil {
 			return
 		}
 		i := 0
