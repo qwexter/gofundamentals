@@ -11,20 +11,27 @@ func main() {}
 // Both start and end could be negative value.
 // If iterator is empty then return nil.
 func Range(low, high int) iter.Seq[int] {
-	return func(yeild func(int) bool) {
+	return func(yield func(int) bool) {
 		for i := low; i < high; i++ {
-			if !yeild(i) {
+			if !yield(i) {
 				return
 			}
 		}
 	}
 }
 
+
+// Filter creates an iterator that produce elements only that pass predicate function.
+// Iterator doesn't handle any errors in preticate function, you should bare it yourself.
+// If terator is empty then return nil.
 func Filter[T any](iter iter.Seq[T], predicate func(T) bool) iter.Seq[T] {
-	return func(yeild func(T) bool) {
+	return func(yield func(T) bool) {
+		if iter == nil {
+			return
+		}
 		for v := range iter {
 			if predicate(v) {
-				if !yeild(v) {
+				if !yield(v) {
 					return
 				}
 			}
@@ -37,9 +44,9 @@ func Filter[T any](iter iter.Seq[T], predicate func(T) bool) iter.Seq[T] {
 // Example: Map(Range(1, 3), func(n int) int { return n * 2 })
 // should yield: 2, 4, 6
 func Map[T, U any](seq iter.Seq[T], mapper func(T) U) iter.Seq[U] {
-	return func(yeild func(U) bool) {
+	return func(yield func(U) bool) {
 		for v := range seq {
-			if !yeild(mapper(v)) {
+			if !yield(mapper(v)) {
 				return
 			}
 		}
@@ -49,13 +56,13 @@ func Map[T, U any](seq iter.Seq[T], mapper func(T) U) iter.Seq[U] {
 // Take - an iterator that yields only the first n elements
 // Example: Take(Range(1, 100), 3) should yield: 1, 2, 3
 func Take[T any](seq iter.Seq[T], n int) iter.Seq[T] {
-	return func(yeild func(T) bool) {
+	return func(yield func(T) bool) {
 		if n <= 0 {
 			return
 		}
 		i := 0
 		for v := range seq {
-			if i >= n || !yeild(v) {
+			if i >= n || !yield(v) {
 				return
 			}
 			i++
@@ -84,12 +91,12 @@ func Cycle[T any](items []T) iter.Seq[T] {
 // Create an iterator that yields both index and value
 // Example: Enumerate([]string{"a", "b", "c"}) yields: (0, "a"), (1, "b"), (2, "c")
 func Enumerate[T any](items []T) iter.Seq2[int, T] {
-	return func(yeild func(int, T) bool) {
+	return func(yield func(int, T) bool) {
 		if len(items) <= 0 {
 			return
 		}
 		for i, v := range items {
-			if !yeild(i, v) {
+			if !yield(i, v) {
 				return
 			}
 		}
@@ -100,7 +107,7 @@ func Enumerate[T any](items []T) iter.Seq2[int, T] {
 // Stops when the shorter sequence ends
 // Example: Zip(Range(1, 3), Range(10, 15)) yields: (1, 10), (2, 11), (3, 12)
 func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
-	return func(yeild func(T, U) bool) {
+	return func(yield func(T, U) bool) {
 		n1, s1 := iter.Pull(seq1)
 		n2, s2 := iter.Pull(seq2)
 		defer s1()
@@ -111,7 +118,7 @@ func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
 			if !ok1 || !ok2 {
 				return
 			}
-			if !yeild(v1, v2) {
+			if !yield(v1, v2) {
 				return
 			}
 		}
@@ -122,10 +129,10 @@ func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
 // Create an iterator that flattens a sequence of sequences
 // Example: Flatten([][]int{{1, 2}, {3, 4}, {5}}) yields: 1, 2, 3, 4, 5 TODO: rewrite example to work with seq
 func Flatten[T any](seqs iter.Seq[[]T]) iter.Seq[T] {
-	return func(yeild func(T) bool) {
+	return func(yield func(T) bool) {
 		for s := range seqs {
 			for _, v := range s {
-				if !yeild(v) {
+				if !yield(v) {
 					return
 				}
 			}

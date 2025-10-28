@@ -9,7 +9,7 @@ import (
 )
 
 func TestRange(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		low, high int
 		want      []int
 	}{
@@ -20,22 +20,34 @@ func TestRange(t *testing.T) {
 		{low: 0, high: 0, want: nil},
 	}
 
-	for _, test := range tests {
-		title := fmt.Sprintf("from %d to %d", test.low, test.high)
+	for _, c := range cases {
+		title := fmt.Sprintf("from %d to %d", c.low, c.high)
 		t.Run(title, func(t *testing.T) {
-			got := slices.Collect(Range(test.low, test.high))
-			assertEqual(t, got, test.want)
+			got := slices.Collect(Range(c.low, c.high))
+			assertEqual(t, got, c.want)
 		})
 	}
 }
 
 func TestFilter(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		name      string
 		iter      iter.Seq[int]
 		predicate func(int) bool
 		want      []int
 	}{
+		{
+			name:      "nil input, then empty output",
+			iter:      nil,
+			predicate: func(i int) bool { return false },
+			want:      []int{},
+		},
+		{
+			name:      "nil input, then nil output",
+			iter:      Range(0,0),
+			predicate: func(i int) bool { return false },
+			want:      []int{},
+		},
 		{
 			name:      "no positive predicate",
 			iter:      Range(1, 5),
@@ -62,10 +74,10 @@ func TestFilter(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			got := slices.Collect(Filter(test.iter, test.predicate))
-			assertEqual(t, got, test.want)
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := slices.Collect(Filter(c.iter, c.predicate))
+			assertEqual(t, got, c.want)
 		})
 	}
 }
