@@ -87,14 +87,10 @@ func Cycle[T any](items []T) iter.Seq[T] {
 	}
 }
 
-// Enumerate - Key-Value Iterator (Seq2)
-// Create an iterator that yields both index and value
+// Enumerate create an iterator that yields both index and value.
 // Example: Enumerate([]string{"a", "b", "c"}) yields: (0, "a"), (1, "b"), (2, "c")
 func Enumerate[T any](items []T) iter.Seq2[int, T] {
 	return func(yield func(int, T) bool) {
-		if len(items) <= 0 {
-			return
-		}
 		for i, v := range items {
 			if !yield(i, v) {
 				return
