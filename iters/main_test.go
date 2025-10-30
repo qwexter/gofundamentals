@@ -214,14 +214,19 @@ func TestCycle(t *testing.T) {
 }
 
 func TestEnumerate(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		name string
 		in   []string
 		want []pair[int, string]
 	}{
 		{
-			name: "when empty input, then empty output",
+			name: "when nil input, then empty output",
 			in:   []string{},
+			want: []pair[int, string]{},
+		},
+		{
+			name: "when empty input, then empty output",
+			in:   make([]string, 0),
 			want: []pair[int, string]{},
 		},
 		{
@@ -231,14 +236,14 @@ func TestEnumerate(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		iter := Enumerate(test.in)
+	for _, c := range cases {
+		iter := Enumerate(c.in)
 
-		got := make([]pair[int, string], len(test.in))
+		got := make([]pair[int, string], len(c.in))
 		for i, v := range iter {
 			got[i] = pair[int, string]{i, v}
 		}
-		assertEqual(t, got, test.want)
+		assertEqual(t, got, c.want)
 	}
 }
 
