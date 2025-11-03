@@ -254,7 +254,7 @@ func TestZip(t *testing.T) {
 		in2  []U
 		want []pair[T, U]
 	}
-	tests := []TZip[int, string]{
+	cases := []TZip[int, string]{
 		{
 			name: "when both empty, then empty seq",
 			in1:  []int{},
@@ -294,17 +294,17 @@ func TestZip(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		seq1 := slices.Values(test.in1)
-		seq2 := slices.Values(test.in2)
+	for _, c := range cases {
+		seq1 := slices.Values(c.in1)
+		seq2 := slices.Values(c.in2)
 
 		got := iter2AsSlice(Zip(seq1, seq2))
-		assertEqual(t, got, test.want)
+		assertEqual(t, got, c.want)
 	}
 }
 
 func TestFlatten(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		name string
 		in   [][]int
 		want []int
@@ -331,15 +331,15 @@ func TestFlatten(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		in := slices.Values(test.in)
+	for _, c := range cases {
+		in := slices.Values(c.in)
 		got := slices.Collect(Flatten(in))
-		assertEqual(t, got, test.want)
+		assertEqual(t, got, c.want)
 	}
 }
 
 func TestChunk(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		name    string
 		in      pair[int, int]
 		chunkBy int
@@ -365,7 +365,7 @@ func TestChunk(t *testing.T) {
 		},
 		{
 			name:    "when input non empty and chunk less then input length, then chunked output",
-			in:      pair[int, int]{0, 6},
+			in:      pair[int, int]{0, 5},
 			chunkBy: 1,
 			want:    [][]int{{0}, {1}, {2}, {3}, {4}, {5}},
 		},
@@ -377,17 +377,17 @@ func TestChunk(t *testing.T) {
 		},
 	}
 
-	for _, test := range tests {
-		in := Range(test.in.first, test.in.second)
-		got := slices.Collect(Chunk(in, test.chunkBy))
+	for _, c := range cases {
+		in := Range(c.in.first, c.in.second)
+		got := slices.Collect(Chunk(in, c.chunkBy))
 		for i := range got {
-			assertEqual(t, got[i], test.want[i])
+			 assertEqual(t, got[i], c.want[i])
 		}
 	}
 }
 
 func TestReduce(t *testing.T) {
-	tests := []struct {
+	cases := []struct {
 		in      iter.Seq[int]
 		initial int
 		want    int
@@ -413,10 +413,10 @@ func TestReduce(t *testing.T) {
 		return acc + n
 	}
 
-	for _, test := range tests {
-		got := Reduce(test.in, test.initial, reducer)
-		if got != test.want {
-			t.Errorf("got %v, want %v", got, test.want)
+	for _, c := range cases {
+		got := Reduce(c.in, c.initial, reducer)
+		if got != c.want {
+			t.Errorf("got %v, want %v", got, c.want)
 		}
 	}
 }

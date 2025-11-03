@@ -99,8 +99,8 @@ func Enumerate[T any](items []T) iter.Seq2[int, T] {
 	}
 }
 
-// Zip Iterator (Seq2) - Create an iterator that combines two sequences into pairs
-// Stops when the shorter sequence ends
+// Zip creates an iterator that combines two sequences into pairs.
+// Ends yielding when any of inputs done.
 // Example: Zip(Range(1, 3), Range(10, 15)) yields: (1, 10), (2, 11), (3, 12)
 func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
 	return func(yield func(T, U) bool) {
@@ -121,9 +121,8 @@ func Zip[T, U any](seq1 iter.Seq[T], seq2 iter.Seq[U]) iter.Seq2[T, U] {
 	}
 }
 
-// Flatten Iterator
-// Create an iterator that flattens a sequence of sequences
-// Example: Flatten([][]int{{1, 2}, {3, 4}, {5}}) yields: 1, 2, 3, 4, 5 TODO: rewrite example to work with seq
+// Flatten creates an iterator that flattens a sequence of slices to sequence of elements,
+// Example: Flatten([][]int{{1, 2}, {3, 4}, {5}}) yields: 1, 2, 3, 4, 5
 func Flatten[T any](seqs iter.Seq[[]T]) iter.Seq[T] {
 	return func(yield func(T) bool) {
 		for s := range seqs {
@@ -136,9 +135,8 @@ func Flatten[T any](seqs iter.Seq[[]T]) iter.Seq[T] {
 	}
 }
 
-// Chunk Iterator
-// Create an iterator that groups elements into chunks of size n
-// Example: Chunk(Range(1, 7), 3) yields: [1,2,3], [4,5,6], [7]
+// Chunk creates an iterator that groups elements into chunks of size n.
+// Example: Chunk(Range(1, 7), 3) yields: [1,2,3], [4,5,6]
 func Chunk[T int](seq iter.Seq[T], size int) iter.Seq[[]T] {
 	return func(yield func([]T) bool) {
 		if size <= 0 {
